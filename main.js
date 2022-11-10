@@ -1,14 +1,13 @@
+var score_rightHand=0;
 var score_leftHand=0;
 var leftHandX=0;
 var leftHandY=0;
 var rightHandX=0;
 var rightHandY=0;
 
-var Harry_potter="";
-var Peter_pan="";
+var audio="";
 function preload(){
-Harry_potter= loadSound("music.mp3");
-Peter_pan= loadSound("music2.mp3");
+audio= loadSound("music.mp3");
 }
 function setup(){
 canvas=createCanvas(600, 500);
@@ -17,8 +16,6 @@ video=createCapture(VIDEO);
 video.hide();
 poseNet=ml5.poseNet(video, modelLoaded);
 poseNet.on("pose",gotResults);
-score_leftHand= results[0].pose.keypoints[9].score;
-    console.log("score of left hand = "+score_leftHand);
 }
 function modelLoaded(){
     console.log("model is started");
@@ -32,25 +29,51 @@ if(results.length>0){
     rightHandX=results[0].pose.rightWrist.x;
     rightHandY= results[0].pose.rightWrist.y;
     console.log("right hand x = "+rightHandX+" right hand y = "+ rightHandY);
+    score_leftHand= results[0].pose.keypoints[9].score;
+    console.log("score of left hand = "+score_leftHand);
+    score_rightHand= results[0].pose.keypoints[10].score;
+    console.log("score right hand = "+score_rightHand);
 }
 }
 function draw(){
 image(video, 0, 0, 600, 500);
 
-stroke("#FF0000");
-fill("#FF0000");
-
-Peter_pan.isPlaying();
-if(score_leftHand>0.2){
-    circle(leftHandX, leftHandY, 20);
-    Harry_potter.stop();
-    if(Peter_pan==false){
-        Peter_pan.play();
-        document.getElementById("song").innerHTML="Song - Peter Pan Song";
+stroke("#0000FF");
+fill("#FFFFFF");
+if(score_rightHand>0.2){
+    circle(rightHandX, rightHandY, 20);
+    if((rightHandY>0) && (rightHandY<=100)){
+      document.getElementById("speed").innerHTML="Speed - 0.5";
+      audio.rate(0.5);
+    }
+    else if(rightHandY>100 && rightHandY<=200){
+        document.getElementById("speed").innerHTML="Speed - 1";
+        audio.rate(1);
+    }
+    else if(rightHandY>200 && rightHandY<=300){
+        document.getElementById("speed").innerHTML="Speed - 1.5";
+        audio.rate(1.5);
+    }
+    else if(rightHandY>300 && rightHandY<=400){
+        document.getElementById("speed").innerHTML="Speed - 2";
+        audio.rate(2);
+    }
+    else if(rightHandY>400){
+        document.getElementById("speed").innerHTML="Speed - 2.5";
+        audio.rate(2.5);
     }
 }
+if(score_leftHand>0.2){
+circle(leftHandX, leftHandY, 20);
+var leftHandNumber=Number(leftHandY);
+var remove_decimal= floor(leftHandNumber);
+var whole_number= remove_decimal/500;
+document.getElementById("volume").innerHTML="Volume : "+whole_number;
+audio.setVolume(whole_number);
 }
-
-function stop(){
-    audio.stop();
+}
+function play(){
+    audio.play();
+    audio.setVolume(1);
+    audio.rate(1);
 }
