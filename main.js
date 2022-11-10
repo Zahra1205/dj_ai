@@ -4,9 +4,11 @@ var leftHandY=0;
 var rightHandX=0;
 var rightHandY=0;
 
-var audio="";
+var Harry_potter="";
+var Peter_pan="";
 function preload(){
-audio= loadSound("music.mp3");
+Harry_potter= loadSound("music.mp3");
+Peter_pan= loadSound("music2.mp3");
 }
 function setup(){
 canvas=createCanvas(600, 500);
@@ -15,6 +17,8 @@ video=createCapture(VIDEO);
 video.hide();
 poseNet=ml5.poseNet(video, modelLoaded);
 poseNet.on("pose",gotResults);
+score_leftHand= results[0].pose.keypoints[9].score;
+    console.log("score of left hand = "+score_leftHand);
 }
 function modelLoaded(){
     console.log("model is started");
@@ -28,27 +32,25 @@ if(results.length>0){
     rightHandX=results[0].pose.rightWrist.x;
     rightHandY= results[0].pose.rightWrist.y;
     console.log("right hand x = "+rightHandX+" right hand y = "+ rightHandY);
-    score_leftHand= results[0].pose.keypoints[9].score;
-    console.log("score of left hand = "+score_leftHand);
 }
 }
 function draw(){
 image(video, 0, 0, 600, 500);
 
-stroke("#0000FF");
-fill("#FFFFFF");
+stroke("#FF0000");
+fill("#FF0000");
 
+Peter_pan.isPlaying();
 if(score_leftHand>0.2){
-circle(leftHandX, leftHandY, 20);
-var leftHandNumber=Number(leftHandY);
-var remove_decimal= floor(leftHandNumber);
-var whole_number= remove_decimal/500;
-document.getElementById("volume").innerHTML="Volume : "+whole_number;
-audio.setVolume(whole_number);
+    circle(leftHandX, leftHandY, 20);
+    Harry_potter.stop();
+    if(Peter_pan==false){
+        Peter_pan.play();
+        document.getElementById("song").innerHTML="Song - Peter Pan Song";
+    }
 }
 }
-function play(){
-    audio.play();
-    audio.setVolume(1);
-    audio.rate(1);
+
+function stop(){
+    audio.stop();
 }
